@@ -6,6 +6,7 @@ import {
   getMyApplicationsService,
 } from "@/services/applications";
 import { formatDate } from "@/lib/date";
+import { AxiosError } from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,8 +23,13 @@ import {
   AlertCircle,
   Send,
   CheckCircle2,
+  MonitorSmartphone,
+  GraduationCap,
+  MapPin,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +54,49 @@ import {
 } from "@/schemas/aplicationSchema";
 
 export function JobDetails() {
+  const getWorkModelText = (model?: string) => {
+    switch (model) {
+      case "REMOTE":
+        return "Remoto";
+      case "HYBRID":
+        return "Híbrido";
+      case "ONSITE":
+        return "Presencial";
+      default:
+        return "";
+    }
+  };
+
+  const getJobTypeText = (type?: string) => {
+    switch (type) {
+      case "FULL_TIME":
+        return "Tiempo Completo";
+      case "PART_TIME":
+        return "Medio Tiempo";
+      case "FREELANCE":
+        return "Por Proyecto";
+      case "CONTRACT":
+        return "Contrato";
+      default:
+        return "";
+    }
+  };
+
+  const getExperienceLevelText = (level?: string) => {
+    switch (level) {
+      case "JUNIOR":
+        return "Junior";
+      case "MID_LEVEL":
+        return "Semi-Senior";
+      case "SENIOR":
+        return "Senior";
+      case "EXPERT":
+        return "Experto";
+      default:
+        return "";
+    }
+  };
+
   const { id } = useParams();
   const location = useLocation();
   const { user } = useAppAuth();
@@ -91,7 +140,7 @@ export function JobDetails() {
       queryClient.invalidateQueries({ queryKey: ["my-applications"] });
       queryClient.invalidateQueries({ queryKey: ["job", id] });
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ error: string }>) => {
       const errorMessage =
         error.response?.data?.error || "Error al enviar la aplicación";
       form.setError("root", { message: errorMessage });
@@ -148,7 +197,7 @@ export function JobDetails() {
   }
 
   return (
-    <div>
+    <div className="p-8">
       {/* Back Navigation */}
       <Link
         to={backPath}
@@ -176,11 +225,56 @@ export function JobDetails() {
             </span>
           </div>
 
+          {/* New Badges */}
+          {job.workModel && (
+            <Badge
+              variant="secondary"
+              className="gap-1.5 text-sm font-normal py-1 px-3"
+            >
+              <MonitorSmartphone className="size-4 text-muted-foreground" />
+              {getWorkModelText(job.workModel)}
+            </Badge>
+          )}
+
+          {job.jobType && (
+            <Badge
+              variant="secondary"
+              className="gap-1.5 text-sm font-normal py-1 px-3"
+            >
+              <ClipboardList className="size-4 text-muted-foreground" />
+              {getJobTypeText(job.jobType)}
+            </Badge>
+          )}
+
+          {job.experienceLevel && (
+            <Badge
+              variant="secondary"
+              className="gap-1.5 text-sm font-normal py-1 px-3"
+            >
+              <GraduationCap className="size-4 text-muted-foreground" />
+              {getExperienceLevelText(job.experienceLevel)}
+            </Badge>
+          )}
+
+          {job.location && (
+            <Badge
+              variant="secondary"
+              className="gap-1.5 text-sm font-normal py-1 px-3"
+            >
+              <MapPin className="size-4 text-muted-foreground" />
+              {job.location}
+            </Badge>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4 mt-6">
           {/* Date */}
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Clock className="size-4" />
-            <span>Publicado el {formatDate(job.createdAt)}</span>
+            <span>Publicado {formatDate(job.createdAt)}</span>
           </div>
+
+          <div className="w-1.5 h-1.5 rounded-full bg-border" />
 
           {/* Applications count */}
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -192,6 +286,25 @@ export function JobDetails() {
           </div>
         </div>
       </div>
+
+      {/* Skills Section */}
+      {job.skills && job.skills.length > 0 && (
+        <div className="bg-card border border-border rounded-xl p-6 mb-6">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+            Habilidades requeridas
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {job.skills.map((skill, i) => (
+              <div
+                key={i}
+                className="bg-primary/5 border border-primary/20 text-foreground px-3 py-1 rounded-md text-sm font-medium"
+              >
+                {skill}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Description */}
       <div className="bg-card border border-border rounded-xl p-6 mb-6">
@@ -339,7 +452,11 @@ export function JobDetails() {
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => setIsDialogOpen(false)}
+                      onClick={() => {
+                        setIsDialogOpen(false);
+                        form.reset();
+                        console.log(form.getValues());
+                      }}
                       disabled={mutation.isPending}
                     >
                       Cancelar

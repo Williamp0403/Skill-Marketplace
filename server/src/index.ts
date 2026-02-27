@@ -3,11 +3,16 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import router from "./routes/index.js";
+import webhookRouter from "./routes/webhook.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(morgan("dev"));
 app.use(cors());
+
+// ⚠️ Webhook va ANTES de express.json() porque necesita el body crudo (raw)
+app.use("/api/webhooks", webhookRouter);
+
 app.use(express.json());
 
 app.use("/api", router);

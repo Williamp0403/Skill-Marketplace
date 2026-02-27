@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   createApplication,
   getProfessionalApplications,
+  getProfessionalStats,
 } from "./application.service.js";
 
 export const applyToJob = async (req: Request, res: Response): Promise<any> => {
@@ -40,6 +41,17 @@ export const getMyApplications = async (
     return res.json(applications);
   } catch (error) {
     console.error("Error fetching applications:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getMyStats = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const userId = req.auth.userId!;
+    const stats = await getProfessionalStats(userId);
+    return res.json(stats);
+  } catch (error) {
+    console.error("Error fetching stats:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

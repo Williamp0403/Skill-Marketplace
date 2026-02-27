@@ -36,3 +36,23 @@ export const getUserRole = async (clerkUserId: string) => {
 
   return user;
 };
+
+export const updateUserFromClerk = async (
+  clerkUserId: string,
+  data: { name?: string; avatarUrl?: string },
+) => {
+  const user = await prisma.user.findUnique({
+    where: { clerkUserId },
+  });
+
+  // Si el usuario no existe aún en nuestra BD (no ha hecho onboarding), no hacemos nada
+  if (!user) return null;
+
+  return prisma.user.update({
+    where: { clerkUserId },
+    data: {
+      name: data.name ?? user.name,
+      avatarUrl: data.avatarUrl ?? user.avatarUrl,
+    },
+  });
+};

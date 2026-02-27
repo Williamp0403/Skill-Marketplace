@@ -57,13 +57,41 @@ model ProfessionalProfile {
   updatedAt DateTime @updatedAt
 }
 
+enum WorkModel {
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
+enum ExperienceLevel {
+  JUNIOR
+  MID_LEVEL
+  SENIOR
+  EXPERT
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  FREELANCE
+  CONTRACT
+}
+
 model Job {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   title       String
   description String
   budget      Float
-  clientId    String
-  createdAt   DateTime @default(now())
+
+  // Nuevos campos
+  workModel       WorkModel       @default(REMOTE)
+  experienceLevel ExperienceLevel @default(MID_LEVEL)
+  jobType         JobType         @default(FREELANCE)
+  location        String?
+  skills          String[] // Opcional: si el cliente no sabe, queda vacío
+
+  clientId  String
+  createdAt DateTime @default(now())
 
   client       User          @relation("ClientJobs", fields: [clientId], references: [id])
   applications Application[]

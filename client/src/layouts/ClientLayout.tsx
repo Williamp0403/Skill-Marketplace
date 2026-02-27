@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
-import { ProfessionalHeader } from "@/components/ProfessionalHeader";
-import { ProfessionalSidebar } from "@/components/ProfessionalSidebar";
+import { ClientHeader } from "@/components/ClientHeader";
+import { ClientSidebar } from "@/components/ClientSidebar";
 import { useAppAuth } from "@/store/Auth";
 import { Loader2 } from "lucide-react";
 
 /**
- * ProfessionalLayout - Layout con Sidebar + Top Header para profesionales.
+ * ClientLayout - Layout con Sidebar + Top Header para clientes.
  */
-export function ProfessionalLayout() {
+export function ClientLayout() {
   const { loading, isAuthenticated, needsOnboarding, user } = useAppAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -28,14 +28,14 @@ export function ProfessionalLayout() {
     return <Navigate to="/select-role" replace />;
   }
 
-  if (user?.role !== "PROFESSIONAL") {
+  if (user?.role !== "CLIENT") {
     return <Navigate to="/" replace />;
   }
 
   return (
     <div className="flex h-screen bg-background relative overflow-hidden">
       {/* Sidebar con control de estado */}
-      <ProfessionalSidebar
+      <ClientSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
@@ -49,7 +49,7 @@ export function ProfessionalLayout() {
       )}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <ProfessionalHeader onMenuClick={() => setIsSidebarOpen(true)} />
+        <ClientHeader onMenuClick={() => setIsSidebarOpen(true)} />
         <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>

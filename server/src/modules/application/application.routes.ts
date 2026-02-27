@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { applyToJob, getMyApplications } from "./application.controller.js";
+import {
+  applyToJob,
+  getMyApplications,
+  getMyStats,
+} from "./application.controller.js";
 import { authMiddleware } from "../../middleware/authMiddleware.js";
 import { roleMiddleware } from "../../middleware/roleMiddleware.js";
 import { validateData } from "../../middleware/validateDataMiddleware.js";
@@ -20,6 +24,12 @@ router.get(
   authMiddleware,
   roleMiddleware("PROFESSIONAL"),
   getMyApplications,
+);
+router.get(
+  "/me/stats",
+  authMiddleware,
+  roleMiddleware("PROFESSIONAL"),
+  getMyStats,
 );
 
 export default router;

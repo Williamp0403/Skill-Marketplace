@@ -11,6 +11,8 @@ import { setGetTokenFn } from "../lib/axios";
 type AppUser = {
   id: string;
   role: "CLIENT" | "PROFESSIONAL";
+  name: string | null;
+  avatarUrl: string | null;
 };
 
 type AuthContextType = {

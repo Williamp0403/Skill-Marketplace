@@ -9,7 +9,7 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-4 px-6 md:px-8">
-      <nav className="flex flex-1 items-center gap-8 justify-between mx-auto w-full max-w-7xl">
+      <nav className="flex flex-1 items-center gap-8 justify-between mx-auto w-full max-w-7xl h-10">
         <NavLink
           to="/"
           className="font-bold text-xl tracking-tight text-primary"

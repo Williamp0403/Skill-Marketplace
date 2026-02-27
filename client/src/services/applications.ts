@@ -1,5 +1,5 @@
 import axiosInstance from "@/lib/axios";
-import type { Application } from "@/types/application";
+import type { Application, ApplicationStats } from "@/types/application";
 
 export async function getMyApplicationsService(): Promise<Application[]> {
   const res = await axiosInstance.get<Application[]>("/applications/me");
@@ -12,5 +12,12 @@ export async function applyToJobService(data: {
   proposedRate?: number;
 }): Promise<Application> {
   const res = await axiosInstance.post<Application>("/applications", data);
+  return res.data;
+}
+
+export async function getMyStatsService(): Promise<ApplicationStats> {
+  const res = await axiosInstance.get<ApplicationStats>(
+    "/applications/me/stats",
+  );
   return res.data;
 }

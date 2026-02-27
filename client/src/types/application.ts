@@ -25,3 +25,10 @@ export interface Application {
   createdAt: string;
   job: ProfessionalApplicationJob;
 }
+
+export interface ApplicationStats {
+  total: number;
+  pending: number;
+  accepted: number;
+  rejected: number;
+}

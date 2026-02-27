@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  UserRound,
   Edit3,
   Loader2,
   Save,
@@ -12,7 +12,9 @@ import {
   MapPin,
   Clock,
   GraduationCap,
+  ExternalLink,
 } from "lucide-react";
+import { useAppAuth } from "@/store/Auth";
 import { Button } from "@/components/ui/button";
 import {
   getMyProfessionalProfile,
@@ -26,6 +28,7 @@ import type { ProfessionalProfile } from "@/types/professionalProfile";
 
 export function ProfessionalProfile() {
   const queryClient = useQueryClient();
+  const { user } = useAppAuth();
   const [isEditing, setIsEditing] = useState(false);
 
   // 1. Fetch de los datos desde la BD (Le decimos explícitamente el tipo)
@@ -124,8 +127,8 @@ export function ProfessionalProfile() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <div className="p-8 space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between border-b pb-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Mi Perfil</h1>
           <p className="text-muted-foreground mt-1">
@@ -171,64 +174,101 @@ export function ProfessionalProfile() {
         // ********************
         // MODO LECTURA
         // ********************
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 border border-border bg-card rounded-xl p-6 text-center shadow-sm space-y-4">
-            <div className="mx-auto w-24 h-24 rounded-full bg-accent flex items-center justify-center mb-4">
-              {profile.user?.avatarUrl ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          {/* Sidebar */}
+          <div className="md:col-span-1 space-y-6">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm text-center">
+              <div className="relative mx-auto size-32 mb-4 group">
                 <img
-                  src={profile.user.avatarUrl}
-                  alt="Avatar"
-                  className="w-full h-full object-cover rounded-full"
+                  src={
+                    user?.avatarUrl ||
+                    `https://ui-avatars.com/api/?name=${user?.name}&background=random`
+                  }
+                  alt={user?.name || "Avatar"}
+                  className="size-full rounded-full object-cover border-4 border-background shadow-lg"
                 />
+              </div>
+              <h2 className="text-xl font-bold">{user?.name}</h2>
+              {profile.title ? (
+                <p className="text-primary font-medium text-sm mt-1">
+                  {profile.title}
+                </p>
               ) : (
-                <UserRound className="size-12 text-muted-foreground" />
+                <p className="text-muted-foreground font-medium text-sm mt-1">
+                  Sin título profesional
+                </p>
               )}
-            </div>
 
-            {profile.title && (
-              <h2 className="text-xl font-semibold px-2">{profile.title}</h2>
-            )}
+              <div className="mt-6 pt-6 border-t border-border space-y-4 text-left">
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Briefcase className="size-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                      Experiencia
+                    </p>
+                    <p className="font-medium">
+                      {profile.experienceYears
+                        ? `${profile.experienceYears} ${profile.experienceYears > 1 ? "años" : "año"}`
+                        : "No definida"}
+                    </p>
+                  </div>
+                </div>
 
-            <div className="text-left space-y-3 pt-4 border-t border-border">
-              <div className="flex items-center gap-2 text-sm">
-                <Briefcase className="size-4 text-muted-foreground" />
-                <span className="font-medium">Experiencia:</span>
-                <span className="text-muted-foreground">
-                  {profile.experienceYears
-                    ? `${profile.experienceYears} años`
-                    : "No definido"}
-                </span>
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <MapPin className="size-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                      Ubicación
+                    </p>
+                    <p className="font-medium">
+                      {profile.location || "No definida"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Clock className="size-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                      Tarifa
+                    </p>
+                    <p className="font-medium text-emerald-600 dark:text-emerald-400">
+                      {profile.hourlyRate
+                        ? `$${profile.hourlyRate}/h`
+                        : "Negociable"}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="size-4 text-muted-foreground" />
-                <span className="font-medium">Ubicación:</span>
-                <span className="text-muted-foreground">
-                  {profile.location || "Remoto"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="size-4 text-muted-foreground" />
-                <span className="font-medium">Tarifa:</span>
-                <span className="text-muted-foreground">
-                  {profile.hourlyRate
-                    ? `$${profile.hourlyRate}/h`
-                    : "Negociable"}
-                </span>
-              </div>
+
+              <Link
+                to="/professional/settings"
+                className="mt-6 flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground hover:text-primary transition-colors border border-border rounded-lg py-2 hover:bg-accent"
+              >
+                <ExternalLink className="size-3" />
+                Editar Datos Básicos
+              </Link>
             </div>
           </div>
 
+          {/* Main Content */}
           <div className="md:col-span-2 space-y-6">
             {profile.bio && (
-              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4">Sobre mí</h3>
-                <p className="text-foreground whitespace-pre-wrap">
+              <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold mb-3">Sobre mí</h3>
+                <p className="text-foreground leading-relaxed whitespace-pre-wrap">
                   {profile.bio}
                 </p>
               </div>
             )}
 
-            <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Briefcase className="size-5 text-primary" /> Habilidades
               </h3>
@@ -250,7 +290,7 @@ export function ProfessionalProfile() {
               )}
             </div>
 
-            <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <GraduationCap className="size-5 text-primary" /> Educación
               </h3>
@@ -263,12 +303,20 @@ export function ProfessionalProfile() {
               </p>
             </div>
 
-            <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">Idiomas</h3>
               {profile.languages && profile.languages.length > 0 ? (
-                <p className="text-foreground">
-                  {profile.languages.join(", ")}
-                </p>
+                <div className="flex flex-wrap gap-3">
+                  {profile.languages.map((lang, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 text-foreground font-medium bg-secondary/50 px-3 py-1.5 rounded-lg border border-border/50"
+                    >
+                      <span className="size-1.5 rounded-full bg-primary" />
+                      {lang}
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <p className="text-sm text-muted-foreground italic">
                   No especificado.

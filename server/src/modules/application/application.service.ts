@@ -54,3 +54,32 @@ export const getProfessionalApplications = async (professionalId: string) => {
     orderBy: { createdAt: "desc" },
   });
 };
+
+export const getProfessionalStats = async (professionalId: string) => {
+  const grouped = await prisma.application.groupBy({
+    by: ["status"],
+    where: { professionalId },
+    _count: { status: true },
+  });
+
+  const stats = { total: 0, pending: 0, accepted: 0, rejected: 0 };
+
+  for (const entry of grouped) {
+    const count = entry._count.status;
+    stats.total += count;
+
+    switch (entry.status) {
+      case "PENDING":
+        stats.pending = count;
+        break;
+      case "ACCEPTED":
+        stats.accepted = count;
+        break;
+      case "REJECTED":
+        stats.rejected = count;
+        break;
+    }
+  }
+
+  return stats;
+};
