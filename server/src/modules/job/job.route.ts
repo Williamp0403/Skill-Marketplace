@@ -1,5 +1,12 @@
 import { Router } from "express";
-import { getJob, getJobs, createJobPost } from "./job.controller.js";
+import {
+  getJob,
+  getJobs,
+  createJobPost,
+  getClientJobs,
+  getClientDashboardStatsController,
+  getClientRecentActivityController,
+} from "./job.controller.js";
 import { authMiddleware } from "../../middleware/authMiddleware.js";
 import { roleMiddleware } from "../../middleware/roleMiddleware.js";
 import { validateData } from "../../middleware/validateDataMiddleware.js";
@@ -9,9 +16,21 @@ const router = Router();
 
 // Public endpoints
 router.get("/", getJobs);
+router.get("/me", authMiddleware, roleMiddleware("CLIENT"), getClientJobs);
+router.get(
+  "/me/stats",
+  authMiddleware,
+  roleMiddleware("CLIENT"),
+  getClientDashboardStatsController,
+);
+router.get(
+  "/me/recent-activity",
+  authMiddleware,
+  roleMiddleware("CLIENT"),
+  getClientRecentActivityController,
+);
 router.get("/:id", getJob);
 
-// Protected endpoints
 router.post(
   "/",
   authMiddleware,

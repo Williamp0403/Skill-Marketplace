@@ -48,7 +48,7 @@ export const updateUserFromClerk = async (
   // Si el usuario no existe aún en nuestra BD (no ha hecho onboarding), no hacemos nada
   if (!user) return null;
 
-  return prisma.user.update({
+  return await prisma.user.update({
     where: { clerkUserId },
     data: {
       name: data.name ?? user.name,

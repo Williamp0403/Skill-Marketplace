@@ -40,7 +40,7 @@ export const createApplication = async (
 };
 
 export const getProfessionalApplications = async (professionalId: string) => {
-  return prisma.application.findMany({
+  return await prisma.application.findMany({
     where: { professionalId },
     include: {
       job: {
@@ -82,4 +82,62 @@ export const getProfessionalStats = async (professionalId: string) => {
   }
 
   return stats;
+};
+
+export const getJobApplications = async (clientId: string, jobId: string) => {
+  const job = await prisma.job.findUnique({
+    where: { id: jobId },
+    select: { clientId: true },
+  });
+
+  if (!job) return { error: "Job not found", status: 404 };
+  if (job.clientId !== clientId)
+    return { error: "Unauthorized access", status: 403 };
+
+  return await prisma.application.findMany({
+    where: { jobId },
+    include: {
+      professional: {
+        select: {
+          id: true,
+          name: true,
+          avatarUrl: true,
+          professionalProfile: {
+            select: {
+              title: true,
+              skills: true,
+            },
+          },
+        },
+      },
+      job: {
+        select: {
+          title: true,
+          budget: true,
+          createdAt: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+export const updateApplicationStatus = async (
+  clientId: string,
+  applicationId: string,
+  status: "ACCEPTED" | "REJECTED",
+) => {
+  const application = await prisma.application.findUnique({
+    where: { id: applicationId },
+    include: { job: { select: { clientId: true } } },
+  });
+
+  if (!application) return { error: "Application not found", status: 404 };
+  if (application.job.clientId !== clientId)
+    return { error: "Unauthorized access", status: 403 };
+
+  return await prisma.application.update({
+    where: { id: applicationId },
+    data: { status },
+  });
 };

@@ -12,7 +12,7 @@ export const createProfessionalProfileIfNotExists = async (userId: string) => {
 
   if (existing) return existing;
 
-  return prisma.professionalProfile.create({
+  return await prisma.professionalProfile.create({
     data: { userId },
     include: {
       user: {
@@ -23,7 +23,7 @@ export const createProfessionalProfileIfNotExists = async (userId: string) => {
 };
 
 export const updateProfessionalProfile = async (userId: string, data: any) => {
-  return prisma.professionalProfile.update({
+  return await prisma.professionalProfile.update({
     where: { userId },
     data,
     include: {

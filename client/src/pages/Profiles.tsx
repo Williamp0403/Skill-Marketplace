@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { UserRound, Loader2, Calendar } from "lucide-react";
-import { formatDate } from "@/lib/date";
+import { UserRound, Loader2 } from "lucide-react";
 import { getProfilesService } from "@/services/profiles";
 import { Link, useLocation } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 export function Profiles() {
   const { data, isLoading, error } = useQuery({
@@ -13,7 +13,9 @@ export function Profiles() {
   const location = useLocation();
   const basePath = location.pathname.startsWith("/professional")
     ? "/professional/profiles"
-    : "/profiles";
+    : location.pathname.startsWith("/client")
+      ? "/client/profiles"
+      : "/profiles";
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
@@ -96,11 +98,21 @@ export function Profiles() {
                 </p>
               )}
 
-              {/* Footer info */}
-              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-3 border-t border-border">
-                <Calendar className="size-3.5" />
-                <span>Miembro desde {formatDate(profile.createdAt)}</span>
-              </div>
+              {/* Skills */}
+              {profile.skills && profile.skills.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-1.5 mb-4">
+                  {profile.skills.slice(0, 3).map((skill) => (
+                    <Badge key={skill} variant="secondary" className="text-xs">
+                      {skill}
+                    </Badge>
+                  ))}
+                  {profile.skills.length > 3 && (
+                    <span className="text-xs text-muted-foreground flex items-center">
+                      +{profile.skills.length - 3}
+                    </span>
+                  )}
+                </div>
+              )}
             </Link>
           ))}
         </div>

@@ -17,6 +17,11 @@ import { ProfessionalProposals } from "@/pages/professional/Proposals";
 import { ProfessionalSettings } from "@/pages/professional/Settings";
 import { ClientLayout } from "@/layouts/ClientLayout";
 import { ClientDashboard } from "@/pages/client/Dashboard";
+import { CreateJob } from "@/pages/client/CreateJob";
+import { MyJobs } from "@/pages/client/MyJobs";
+import { ClientProposals } from "@/pages/client/ClientProposals";
+import { ClientSettings } from "@/pages/client/Settings";
+import { ClientProfile } from "@/pages/client/Profile";
 
 export function IndexRoute() {
   return (
@@ -51,6 +56,14 @@ export function IndexRoute() {
         {/* ─── Rutas de Cliente (ClientHeader, sin Footer público) ─── */}
         <Route path="/client" element={<ClientLayout />}>
           <Route path="dashboard" element={<ClientDashboard />} />
+          <Route path="jobs/new" element={<CreateJob />} />
+          <Route path="jobs" element={<MyJobs />} />
+          <Route path="proposals" element={<ClientProposals />} />
+          <Route path="jobs/:id" element={<JobDetails />} />
+          <Route path="profiles" element={<Profiles />} />
+          <Route path="profiles/:id" element={<ProfileDetails />} />
+          <Route path="profile" element={<ClientProfile />} />
+          <Route path="settings" element={<ClientSettings />} />
         </Route>
 
         {/* ─── 404 ─── */}

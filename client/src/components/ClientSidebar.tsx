@@ -1,9 +1,10 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderOpen,
   FileText,
   UserRound,
+  Users,
   Settings,
   Briefcase,
   LogOut,
@@ -33,6 +34,11 @@ const navItems = [
     label: "Propuestas Recibidas",
   },
   {
+    to: "/client/profiles",
+    icon: Users,
+    label: "Buscar Talentos",
+  },
+  {
     to: "/client/profile",
     icon: UserRound,
     label: "Mi Perfil de Empresa",
@@ -46,6 +52,45 @@ interface SidebarProps {
 
 export function ClientSidebar({ isOpen, onClose }: SidebarProps) {
   const { signOut } = useClerk();
+  const location = useLocation();
+
+  const isRouteActive = (to: string) => {
+    const path = location.pathname;
+    const searchParams = new URLSearchParams(location.search);
+    const fromProposals = searchParams.get("from") === "proposals";
+
+    if (to === "/client/jobs") {
+      // Activo en "Mis Proyectos" y en "Detalles de Proyecto" pero NO en "Publicar Proyecto"
+      return (
+        path === "/client/jobs" ||
+        (path.startsWith("/client/jobs/") &&
+          !path.startsWith("/client/jobs/new"))
+      );
+    }
+
+    if (to === "/client/jobs/new") {
+      return path === "/client/jobs/new";
+    }
+
+    // Si venimos de propuestas mantenemos "Propuestas" activo
+    if (to === "/client/proposals") {
+      return (
+        path === "/client/proposals" ||
+        (path.startsWith("/client/profiles/") && fromProposals)
+      );
+    }
+
+    // Buscar Talentos (solo activo si NO venimos de propuestas)
+    if (to === "/client/profiles") {
+      return (
+        path === "/client/profiles" ||
+        (path.startsWith("/client/profiles/") && !fromProposals)
+      );
+    }
+
+    // Para los demás (ej: /client/profile vs /client/profiles), requerimos coincidencia exacta o subruta real
+    return path === to || path.startsWith(to + "/");
+  };
 
   return (
     <aside
@@ -75,24 +120,25 @@ export function ClientSidebar({ isOpen, onClose }: SidebarProps) {
         <span className="text-[0.75rem] font-semibold text-muted-foreground uppercase tracking-wider px-3 pb-2">
           Gestión
         </span>
-        {navItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            onClick={onClose}
-            className={({ isActive }) =>
-              `flex items-center gap-3 p-3 rounded-lg text-[0.9375rem] font-medium transition-all ${
+        {navItems.map(({ to, icon: Icon, label }) => {
+          const isActive = isRouteActive(to);
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={onClose}
+              className={`flex items-center gap-3 p-3 rounded-lg text-[0.9375rem] font-medium transition-all ${
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              } justify-start`
-            }
-            title={label}
-          >
-            <Icon className="size-5 shrink-0" />
-            <span className="truncate">{label}</span>
-          </NavLink>
-        ))}
+              } justify-start`}
+              title={label}
+            >
+              <Icon className="size-5 shrink-0" />
+              <span className="truncate">{label}</span>
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Bottom Section */}
@@ -100,13 +146,11 @@ export function ClientSidebar({ isOpen, onClose }: SidebarProps) {
         <NavLink
           to="/client/settings"
           onClick={onClose}
-          className={({ isActive }) =>
-            `flex items-center gap-3 p-3 rounded-lg text-[0.9375rem] font-medium transition-all ${
-              isActive
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground"
-            } justify-start`
-          }
+          className={`flex items-center gap-3 p-3 rounded-lg text-[0.9375rem] font-medium transition-all ${
+            isRouteActive("/client/settings")
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          } justify-start`}
           title="Configuración"
         >
           <Settings className="size-5 shrink-0" />

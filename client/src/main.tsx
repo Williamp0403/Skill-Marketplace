@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import { AuthProvider } from "./store/Auth.tsx";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const queryClient = new QueryClient();
 
@@ -12,7 +13,9 @@ createRoot(document.getElementById("root")!).render(
   <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <App />
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
   </ClerkProvider>,

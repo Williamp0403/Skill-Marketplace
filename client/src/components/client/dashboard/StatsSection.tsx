@@ -1,9 +1,9 @@
-import { FileText, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { FolderOpen, Users, Clock, UserCheck } from "lucide-react";
 import { StatCard } from "../../StatCard";
-import type { ApplicationStats } from "@/types/application";
+import type { ClientDashboardStats } from "@/types/job";
 
 interface StatsSectionProps {
-  stats: ApplicationStats | undefined;
+  stats: ClientDashboardStats | undefined;
   isLoading: boolean;
   isError?: boolean;
 }
@@ -18,12 +18,18 @@ export function StatsSection({ stats, isLoading, isError }: StatsSectionProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
-        icon={<FileText className="size-5" />}
-        label="Total Propuestas"
-        value={isLoading ? null : (stats?.total ?? 0)}
+        icon={<FolderOpen className="size-5" />}
+        label="Proyectos Publicados"
+        value={isLoading ? null : (stats?.totalJobs ?? 0)}
         color="green"
+      />
+      <StatCard
+        icon={<Users className="size-5" />}
+        label="Propuestas Recibidas"
+        value={isLoading ? null : (stats?.totalApplications ?? 0)}
+        color="blue"
       />
       <StatCard
         icon={<Clock className="size-5" />}
@@ -32,16 +38,10 @@ export function StatsSection({ stats, isLoading, isError }: StatsSectionProps) {
         color="yellow"
       />
       <StatCard
-        icon={<CheckCircle2 className="size-5" />}
-        label="Aceptadas"
+        icon={<UserCheck className="size-5" />}
+        label="Talentos Contratados"
         value={isLoading ? null : (stats?.accepted ?? 0)}
         color="green"
-      />
-      <StatCard
-        icon={<XCircle className="size-5" />}
-        label="Rechazadas"
-        value={isLoading ? null : (stats?.rejected ?? 0)}
-        color="red"
       />
     </div>
   );

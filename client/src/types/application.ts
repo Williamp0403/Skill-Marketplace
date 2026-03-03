@@ -32,3 +32,33 @@ export interface ApplicationStats {
   accepted: number;
   rejected: number;
 }
+
+export interface ClientJobApplicationProfessionalProfile {
+  title: string | null;
+  skills: string[];
+}
+
+export interface ClientJobApplicationProfessional {
+  id: string;
+  name: string | null;
+  avatarUrl: string | null;
+  professionalProfile: ClientJobApplicationProfessionalProfile | null;
+}
+
+export interface ClientJobApplicationJob {
+  title: string;
+  budget: number;
+  createdAt: string;
+}
+
+export interface ClientJobApplication {
+  id: string;
+  message: string;
+  proposedRate: number;
+  status: ApplicationStatus;
+  professionalId: string;
+  jobId: string;
+  createdAt: string;
+  professional: ClientJobApplicationProfessional;
+  job: ClientJobApplicationJob;
+}

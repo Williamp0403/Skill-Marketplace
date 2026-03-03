@@ -24,6 +24,7 @@ model User {
   avatarUrl String?
 
   professionalProfile ProfessionalProfile?
+  clientProfile       ClientProfile?
   jobs                Job[]                @relation("ClientJobs")
   applications        Application[]        @relation("ProfessionalApplications")
 }
@@ -57,6 +58,21 @@ model ProfessionalProfile {
   updatedAt DateTime @updatedAt
 }
 
+model ClientProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  companyName String?
+  industry    String?
+  website     String?
+  about       String?
+  location    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum WorkModel {
   REMOTE
   HYBRID
@@ -83,10 +99,10 @@ model Job {
   description String
   budget      Float
 
-  // Nuevos campos
-  workModel       WorkModel       @default(REMOTE)
-  experienceLevel ExperienceLevel @default(MID_LEVEL)
-  jobType         JobType         @default(FREELANCE)
+  // Campos obligatorios
+  workModel       WorkModel
+  experienceLevel ExperienceLevel
+  jobType         JobType
   location        String?
   skills          String[] // Opcional: si el cliente no sabe, queda vacío
 

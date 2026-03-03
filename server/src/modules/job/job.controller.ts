@@ -1,5 +1,12 @@
 import { Request, Response } from "express";
-import { getAllJobs, getJobById, createJob } from "./job.service.js";
+import {
+  getAllJobs,
+  getJobById,
+  createJob,
+  getJobsByClient,
+  getClientDashboardStats,
+  getClientRecentActivity,
+} from "./job.service.js";
 import { JobCreateInput } from "./job.schema.js";
 
 export const getJobs = async (req: Request, res: Response) => {
@@ -51,5 +58,44 @@ export const getJob = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(`Error fetching job ${req.params.id}:`, error);
     res.status(500).json({ error: "Failed to fetch job details" });
+  }
+};
+
+export const getClientJobs = async (req: Request, res: Response) => {
+  try {
+    const clientId = req.auth.userId!;
+    const jobs = await getJobsByClient(clientId);
+    res.json(jobs);
+  } catch (error) {
+    console.error("Error fetching client jobs:", error);
+    res.status(500).json({ error: "Failed to fetch client jobs" });
+  }
+};
+
+export const getClientDashboardStatsController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const clientId = req.auth.userId!;
+    const stats = await getClientDashboardStats(clientId);
+    res.json(stats);
+  } catch (error) {
+    console.error("Error fetching client dashboard stats:", error);
+    res.status(500).json({ error: "Failed to fetch client dashboard stats" });
+  }
+};
+
+export const getClientRecentActivityController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const clientId = req.auth.userId!;
+    const activity = await getClientRecentActivity(clientId);
+    res.json(activity);
+  } catch (error) {
+    console.error("Error fetching client recent activity:", error);
+    res.status(500).json({ error: "Failed to fetch client recent activity" });
   }
 };

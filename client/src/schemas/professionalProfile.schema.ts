@@ -26,6 +26,7 @@ export const professionalProfileSchema = z.object({
   availability: z.string().nullable().optional(),
   skills: z.string().nullable().optional(),
   languages: z.string().nullable().optional(),
+  portfolio: z.string().nullable().optional(),
   education: z.string().nullable().optional(),
 });
 

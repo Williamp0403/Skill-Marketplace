@@ -82,7 +82,9 @@ export function Jobs() {
   const location = useLocation();
   const basePath = location.pathname.startsWith("/professional")
     ? "/professional/jobs"
-    : "/jobs";
+    : location.pathname.startsWith("/client")
+      ? "/client/jobs"
+      : "/jobs";
 
   return (
     <div className="p-8">

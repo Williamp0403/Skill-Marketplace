@@ -36,7 +36,7 @@ export const getAllJobs = async (filters: {
   if (experienceLevel) where.AND.push({ experienceLevel });
   if (jobType) where.AND.push({ jobType });
 
-  return prisma.job.findMany({
+  return await prisma.job.findMany({
     where: where.AND.length > 0 ? where : {},
     orderBy: {
       createdAt: "desc",
@@ -56,7 +56,7 @@ export const getAllJobs = async (filters: {
 };
 
 export const getJobById = async (id: string) => {
-  return prisma.job.findUnique({
+  return await prisma.job.findUnique({
     where: { id },
     include: {
       client: {
@@ -73,7 +73,7 @@ export const getJobById = async (id: string) => {
 };
 
 export const createJob = async (clientId: string, data: JobCreateInput) => {
-  return prisma.job.create({
+  return await prisma.job.create({
     data: {
       ...data,
       clientId,
@@ -83,6 +83,86 @@ export const createJob = async (clientId: string, data: JobCreateInput) => {
         select: {
           id: true,
           name: true,
+        },
+      },
+    },
+  });
+};
+
+export const getJobsByClient = async (clientId: string) => {
+  return await prisma.job.findMany({
+    where: { clientId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      _count: {
+        select: { applications: true },
+      },
+    },
+  });
+};
+
+export const getClientDashboardStats = async (clientId: string) => {
+  const jobs = await prisma.job.findMany({
+    where: { clientId },
+    select: {
+      id: true,
+      applications: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+    },
+  });
+
+  const totalJobs = jobs.length;
+  // All jobs are considered active until a status feature is added
+  const activeJobs = totalJobs;
+
+  let totalApplications = 0;
+  let pending = 0;
+  let accepted = 0;
+  let rejected = 0;
+
+  for (const job of jobs) {
+    totalApplications += job.applications.length;
+    for (const app of job.applications) {
+      if (app.status === "PENDING") pending++;
+      else if (app.status === "ACCEPTED") accepted++;
+      else if (app.status === "REJECTED") rejected++;
+    }
+  }
+
+  return {
+    totalJobs,
+    activeJobs,
+    totalApplications,
+    pending,
+    accepted,
+    rejected,
+  };
+};
+
+export const getClientRecentActivity = async (clientId: string) => {
+  return await prisma.application.findMany({
+    where: {
+      job: {
+        clientId: clientId,
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    include: {
+      professional: {
+        select: {
+          name: true,
+          avatarUrl: true,
+        },
+      },
+      job: {
+        select: {
+          title: true,
+          id: true,
         },
       },
     },

@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Job" ALTER COLUMN "experienceLevel" DROP DEFAULT,
+ALTER COLUMN "jobType" DROP DEFAULT,
+ALTER COLUMN "workModel" DROP DEFAULT;

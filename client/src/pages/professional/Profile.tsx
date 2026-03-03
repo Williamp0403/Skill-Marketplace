@@ -75,6 +75,7 @@ export function ProfessionalProfile() {
         availability: profile.availability ?? "",
         skills: profile.skills ? profile.skills.join(", ") : "",
         languages: profile.languages ? profile.languages.join(", ") : "",
+        portfolio: profile.portfolio ? profile.portfolio.join(", ") : "",
       });
       setIsEditing(true);
     }
@@ -103,10 +104,18 @@ export function ProfessionalProfile() {
           .filter(Boolean)
       : [];
 
+    const portfolioArray = data.portfolio
+      ? data.portfolio
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+
     mutation.mutate({
       ...data,
       skills: skillsArray,
       languages: languagesArray,
+      portfolio: portfolioArray,
     });
   };
 
@@ -245,6 +254,20 @@ export function ProfessionalProfile() {
                     </p>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Briefcase className="size-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                      Disponibilidad
+                    </p>
+                    <p className="font-medium">
+                      {profile.availability || "No definida"}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <Link
@@ -323,6 +346,29 @@ export function ProfessionalProfile() {
                 </p>
               )}
             </div>
+
+            {/* Portafolio */}
+            {profile.portfolio && profile.portfolio.length > 0 && (
+              <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <ExternalLink className="size-5 text-primary" /> Portafolio
+                </h3>
+                <div className="space-y-2">
+                  {profile.portfolio.map((link, i) => (
+                    <a
+                      key={i}
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-primary hover:underline text-sm"
+                    >
+                      <ExternalLink className="size-4 shrink-0" />
+                      {link}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : (
@@ -445,6 +491,33 @@ export function ProfessionalProfile() {
                   {...register("languages")}
                   className="w-full h-10 px-3 border border-border rounded-md bg-transparent focus:ring-2 focus:ring-primary focus:outline-none"
                   placeholder="Español Nativo, Inglés B2"
+                />
+              </div>
+
+              {/* Disponibilidad */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Disponibilidad</label>
+                <input
+                  type="text"
+                  {...register("availability")}
+                  className="w-full h-10 px-3 border border-border rounded-md bg-transparent focus:ring-2 focus:ring-primary focus:outline-none"
+                  placeholder="Ej: Full-time, 20hrs/semana"
+                />
+              </div>
+
+              {/* Portafolio */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center justify-between">
+                  Portafolio{" "}
+                  <span className="text-xs text-muted-foreground font-normal">
+                    URLs separadas por comas
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  {...register("portfolio")}
+                  className="w-full h-10 px-3 border border-border rounded-md bg-transparent focus:ring-2 focus:ring-primary focus:outline-none"
+                  placeholder="https://github.com/usuario, https://miportafolio.com"
                 />
               </div>
             </div>

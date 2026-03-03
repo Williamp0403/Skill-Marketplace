@@ -105,7 +105,9 @@ export function JobDetails() {
 
   const backPath = location.pathname.startsWith("/professional")
     ? "/professional/jobs"
-    : "/jobs";
+    : location.pathname.startsWith("/client")
+      ? "/client/jobs"
+      : "/jobs";
 
   const {
     data: job,

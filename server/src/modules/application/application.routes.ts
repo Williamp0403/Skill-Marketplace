@@ -3,6 +3,8 @@ import {
   applyToJob,
   getMyApplications,
   getMyStats,
+  getApplicationsForJob,
+  updateApplicationStatusController,
 } from "./application.controller.js";
 import { authMiddleware } from "../../middleware/authMiddleware.js";
 import { roleMiddleware } from "../../middleware/roleMiddleware.js";
@@ -30,6 +32,21 @@ router.get(
   authMiddleware,
   roleMiddleware("PROFESSIONAL"),
   getMyStats,
+);
+
+// Client endpoints
+router.get(
+  "/job/:jobId",
+  authMiddleware,
+  roleMiddleware("CLIENT"),
+  getApplicationsForJob,
+);
+
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  roleMiddleware("CLIENT"),
+  updateApplicationStatusController,
 );
 
 export default router;
