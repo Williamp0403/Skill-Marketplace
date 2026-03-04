@@ -12,6 +12,7 @@ import {
   Search,
   FilterX,
   GraduationCap,
+  Building2,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -234,6 +235,10 @@ export function Jobs() {
 
                   {/* Nuevos Badges: Modalidad y Tipo */}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <Badge variant="secondary" className="gap-1.5 font-normal">
+                      <Building2 className="size-3" />
+                      {job.client.clientProfile?.companyName || job.client.name}
+                    </Badge>
                     {job.workModel && (
                       <Badge
                         variant="secondary"

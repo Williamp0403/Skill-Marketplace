@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getClientProfileById,
   getMyClientProfile,
   updateMyClientProfile,
 } from "./clientProfile.controller.js";
@@ -19,5 +20,8 @@ router.patch(
   validateData(updateClientProfileSchema),
   updateMyClientProfile,
 );
+
+// Ruta pública: cualquier usuario puede ver el perfil de una empresa
+router.get("/:id", getClientProfileById);
 
 export default router;

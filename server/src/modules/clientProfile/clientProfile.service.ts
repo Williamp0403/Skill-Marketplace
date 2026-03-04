@@ -41,3 +41,43 @@ export const updateClientProfile = async (
 
   return profile;
 };
+
+export const getPublicClientProfile = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId, role: "CLIENT" },
+    select: {
+      id: true,
+      name: true,
+      avatarUrl: true,
+      createdAt: true,
+      clientProfile: {
+        select: {
+          companyName: true,
+          industry: true,
+          website: true,
+          about: true,
+          location: true,
+        },
+      },
+      jobs: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          budget: true,
+          skills: true,
+          workModel: true,
+          jobType: true,
+          experienceLevel: true,
+          location: true,
+          createdAt: true,
+          _count: {
+            select: { applications: true },
+          },
+        },
+      },
+    },
+  });
+
+  return user;
+};

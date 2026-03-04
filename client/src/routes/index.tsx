@@ -22,6 +22,7 @@ import { MyJobs } from "@/pages/client/MyJobs";
 import { ClientProposals } from "@/pages/client/ClientProposals";
 import { ClientSettings } from "@/pages/client/Settings";
 import { ClientProfile } from "@/pages/client/Profile";
+import { CompanyProfile } from "@/pages/CompanyProfile";
 
 export function IndexRoute() {
   return (
@@ -36,6 +37,7 @@ export function IndexRoute() {
           <Route path="/jobs/:id" element={<JobDetails />} />
           <Route path="/profiles" element={<Profiles />} />
           <Route path="/profiles/:id" element={<ProfileDetails />} />
+          <Route path="/companies/:id" element={<CompanyProfile />} />
           <Route element={<ProtectedRole />}>
             <Route path="/select-role" element={<SelectRolePage />} />
           </Route>
@@ -50,6 +52,7 @@ export function IndexRoute() {
           <Route path="jobs/:id" element={<JobDetails />} />
           <Route path="profiles" element={<Profiles />} />
           <Route path="profiles/:id" element={<ProfileDetails />} />
+          <Route path="companies/:id" element={<CompanyProfile />} />
           <Route path="settings" element={<ProfessionalSettings />} />
         </Route>
 
@@ -62,6 +65,7 @@ export function IndexRoute() {
           <Route path="jobs/:id" element={<JobDetails />} />
           <Route path="profiles" element={<Profiles />} />
           <Route path="profiles/:id" element={<ProfileDetails />} />
+          <Route path="companies/:id" element={<CompanyProfile />} />
           <Route path="profile" element={<ClientProfile />} />
           <Route path="settings" element={<ClientSettings />} />
         </Route>

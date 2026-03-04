@@ -46,6 +46,9 @@ export const getAllJobs = async (filters: {
         select: {
           id: true,
           name: true,
+          clientProfile: {
+            select: { companyName: true },
+          },
         },
       },
       _count: {
@@ -63,6 +66,16 @@ export const getJobById = async (id: string) => {
         select: {
           id: true,
           name: true,
+          avatarUrl: true,
+          clientProfile: {
+            select: {
+              companyName: true,
+              industry: true,
+              website: true,
+              about: true,
+              location: true,
+            },
+          },
         },
       },
       _count: {

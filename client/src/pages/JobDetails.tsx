@@ -323,18 +323,47 @@ export function JobDetails() {
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
           Publicado por
         </h2>
-        <div className="flex items-center gap-4">
-          <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <User className="size-6 text-primary" />
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">{job.client.name}</p>
-            {job.client.title && (
-              <p className="text-sm text-muted-foreground">
-                {job.client.title}
-              </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {job.client.avatarUrl ? (
+              <img
+                src={job.client.avatarUrl}
+                alt="Avatar"
+                className="size-12 rounded-full object-cover border border-border"
+              />
+            ) : (
+              <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <User className="size-6 text-primary" />
+              </div>
             )}
+            <div>
+              <p className="font-semibold text-foreground">
+                {job.client.clientProfile?.companyName || job.client.name}
+              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                {job.client.clientProfile?.industry && (
+                  <span className="text-sm text-muted-foreground">
+                    {job.client.clientProfile.industry}
+                  </span>
+                )}
+                {job.client.clientProfile?.location && (
+                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <MapPin className="size-3" />
+                    {job.client.clientProfile.location}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
+
+          <Link
+            to={`${backPath.replace("/jobs", "")}/companies/${job.client.id}`}
+          >
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <Briefcase className="size-4" />
+              Ver empresa
+            </Button>
+          </Link>
         </div>
       </div>
 

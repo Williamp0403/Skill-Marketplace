@@ -2,6 +2,7 @@ import axiosInstance from "../lib/axios";
 import type {
   ClientProfile,
   UpdateClientProfileInput,
+  PublicClientProfile,
 } from "@/types/clientProfile";
 
 export const getMyClientProfileService = async (): Promise<ClientProfile> => {
@@ -15,6 +16,15 @@ export const updateMyClientProfileService = async (
   const res = await axiosInstance.patch<ClientProfile>(
     "/client-profiles/me",
     data,
+  );
+  return res.data;
+};
+
+export const getPublicClientProfileService = async (
+  userId: string,
+): Promise<PublicClientProfile> => {
+  const res = await axiosInstance.get<PublicClientProfile>(
+    `/client-profiles/${userId}`,
   );
   return res.data;
 };
