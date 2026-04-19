@@ -6,11 +6,14 @@ export const getAllJobs = async (filters: {
   workModel?: string;
   experienceLevel?: string;
   jobType?: string;
+  status?: string;
 }) => {
-  const { search, workModel, experienceLevel, jobType } = filters;
+  const { search, workModel, experienceLevel, jobType, status } = filters;
 
   const where: any = {
-    AND: [],
+    AND: [
+      { status: status || "OPEN" },
+    ],
   };
 
   if (search) {

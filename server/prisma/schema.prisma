@@ -93,11 +93,19 @@ enum JobType {
   CONTRACT
 }
 
+enum JobStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model Job {
-  id          String @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String
   budget      Float
+  status      JobStatus @default(OPEN)
 
   // Campos obligatorios
   workModel       WorkModel

@@ -12,6 +12,10 @@ export const createApplication = async (
     return { error: "Job not found", status: 404 };
   }
 
+  if (job.status !== "OPEN") {
+    return { error: "Job is not open for new applications", status: 400 };
+  }
+
   // Check if application already exists
   const existingApplication = await prisma.application.findUnique({
     where: {
@@ -129,13 +133,43 @@ export const updateApplicationStatus = async (
 ) => {
   const application = await prisma.application.findUnique({
     where: { id: applicationId },
-    include: { job: { select: { clientId: true } } },
+    include: { job: { select: { clientId: true, id: true } } },
   });
 
   if (!application) return { error: "Application not found", status: 404 };
   if (application.job.clientId !== clientId)
     return { error: "Unauthorized access", status: 403 };
 
+  if (status === "ACCEPTED") {
+    const jobId = application.job.id;
+
+    const [updatedApplication] = await prisma.$transaction([
+      // 1. Accept the chosen application
+      prisma.application.update({
+        where: { id: applicationId },
+        data: { status: "ACCEPTED" },
+      }),
+      // 2. Move the job to IN_PROGRESS
+      prisma.job.update({
+        where: { id: jobId },
+        data: { status: "IN_PROGRESS" },
+      }),
+      // 3. Reject every other PENDING application for this job
+      prisma.application.updateMany({
+        where: {
+          jobId,
+          id: { not: applicationId },
+          status: "PENDING",
+        },
+        data: { status: "REJECTED" },
+      }),
+    ]);
+
+    return updatedApplication;
+  }
+
+  // Handle manual REJECTED status
+  console.log("Rejecting application");
   return await prisma.application.update({
     where: { id: applicationId },
     data: { status },

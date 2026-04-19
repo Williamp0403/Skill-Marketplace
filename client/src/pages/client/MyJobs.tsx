@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/date";
 import { getClientJobsService } from "@/services/jobs";
+import { JobStatusBadge } from "@/components/JobStatusBadge";
+import { getWorkModelText, getJobTypeText } from "@/lib/job-formatters";
 
 export function MyJobs() {
   const {
@@ -24,34 +26,6 @@ export function MyJobs() {
     queryKey: ["client-jobs"],
     queryFn: getClientJobsService,
   });
-
-  const getWorkModelText = (model?: string) => {
-    switch (model) {
-      case "REMOTE":
-        return "Remoto";
-      case "HYBRID":
-        return "Híbrido";
-      case "ONSITE":
-        return "Presencial";
-      default:
-        return "";
-    }
-  };
-
-  const getJobTypeText = (type?: string) => {
-    switch (type) {
-      case "FULL_TIME":
-        return "Tiempo Completo";
-      case "PART_TIME":
-        return "Medio Tiempo";
-      case "FREELANCE":
-        return "Proyectos / Gigs";
-      case "CONTRACT":
-        return "Contrato Fijo";
-      default:
-        return "";
-    }
-  };
 
   return (
     <div className="p-8 max-w-5xl mx-auto animate-in fade-in duration-500">
@@ -120,8 +94,9 @@ export function MyJobs() {
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3">
-                  {/* Badges Modalidad y Tipo */}
-                  <div className="flex gap-2">
+                  {/* Badges Modalidad y Tipo y Estado */}
+                  <div className="flex gap-2 flex-wrap">
+                    <JobStatusBadge status={job.status} />
                     {job.workModel && (
                       <Badge
                         variant="secondary"

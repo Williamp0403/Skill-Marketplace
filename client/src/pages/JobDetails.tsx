@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppAuth } from "@/store/Auth";
-
+import { getWorkModelText, getJobTypeText, getExperienceLevelText } from "@/lib/job-formatters";
 import {
   ArrowLeft,
   Briefcase,
@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { JobStatusBadge } from "@/components/JobStatusBadge";
 import {
   Dialog,
   DialogContent,
@@ -54,48 +55,6 @@ import {
 } from "@/schemas/aplicationSchema";
 
 export function JobDetails() {
-  const getWorkModelText = (model?: string) => {
-    switch (model) {
-      case "REMOTE":
-        return "Remoto";
-      case "HYBRID":
-        return "Híbrido";
-      case "ONSITE":
-        return "Presencial";
-      default:
-        return "";
-    }
-  };
-
-  const getJobTypeText = (type?: string) => {
-    switch (type) {
-      case "FULL_TIME":
-        return "Tiempo Completo";
-      case "PART_TIME":
-        return "Medio Tiempo";
-      case "FREELANCE":
-        return "Por Proyecto";
-      case "CONTRACT":
-        return "Contrato";
-      default:
-        return "";
-    }
-  };
-
-  const getExperienceLevelText = (level?: string) => {
-    switch (level) {
-      case "JUNIOR":
-        return "Junior";
-      case "MID_LEVEL":
-        return "Semi-Senior";
-      case "SENIOR":
-        return "Senior";
-      case "EXPERT":
-        return "Experto";
-      default:
-        return "";
-    }
-  };
 
   const { id } = useParams();
   const location = useLocation();
@@ -228,6 +187,7 @@ export function JobDetails() {
           </div>
 
           {/* New Badges */}
+          <JobStatusBadge status={job.status} />
           {job.workModel && (
             <Badge
               variant="secondary"
