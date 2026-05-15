@@ -11,9 +11,7 @@ export const getAllJobs = async (filters: {
   const { search, workModel, experienceLevel, jobType, status } = filters;
 
   const where: any = {
-    AND: [
-      { status: status || "OPEN" },
-    ],
+    AND: [{ status: status || "OPEN" }],
   };
 
   if (search) {
@@ -182,5 +180,53 @@ export const getClientRecentActivity = async (clientId: string) => {
         },
       },
     },
+  });
+};
+
+export const completeJob = async (jobId: string, clientId: string) => {
+  const job = await prisma.job.findUnique({
+    where: { id: jobId },
+  });
+
+  if (!job) return { error: "Job not found", status: 404 };
+
+  if (job.clientId !== clientId) {
+    return {
+      error: "Unauthorized: Only the job owner can complete this job",
+      status: 403,
+    };
+  }
+
+  if (job.status !== "IN_PROGRESS") {
+    return { error: "Job must be IN_PROGRESS to be completed", status: 400 };
+  }
+
+  return await prisma.job.update({
+    where: { id: jobId },
+    data: { status: "COMPLETED" },
+  });
+};
+
+export const cancelJob = async (jobId: string, clientId: string) => {
+  const job = await prisma.job.findUnique({
+    where: { id: jobId },
+  });
+
+  if (!job) return { error: "Job not found", status: 404 };
+
+  if (job.clientId !== clientId) {
+    return {
+      error: "Unauthorized: Only the job owner can cancel this job",
+      status: 403,
+    };
+  }
+
+  if (job.status === "COMPLETED") {
+    return { error: "Cannot cancel a completed job", status: 400 };
+  }
+
+  return await prisma.job.update({
+    where: { id: jobId },
+    data: { status: "CANCELLED" },
   });
 };

@@ -1,6 +1,6 @@
 import { useParams, Link, useLocation } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getJobById } from "@/services/jobs";
+import { getJobById, completeJobService, cancelJobService } from "@/services/jobs";
 import {
   applyToJobService,
   getMyApplicationsService,
@@ -23,6 +23,7 @@ import {
   AlertCircle,
   Send,
   CheckCircle2,
+  XCircle,
   MonitorSmartphone,
   GraduationCap,
   MapPin,
@@ -105,6 +106,26 @@ export function JobDetails() {
       const errorMessage =
         error.response?.data?.error || "Error al enviar la aplicación";
       form.setError("root", { message: errorMessage });
+    },
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: completeJobService,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["job", id] });
+    },
+    onError: (error: AxiosError<{ error: string }>) => {
+      console.error("Error completing job:", error.response?.data?.error || error.message);
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: cancelJobService,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["job", id] });
+    },
+    onError: (error: AxiosError<{ error: string }>) => {
+      console.error("Error canceling job:", error.response?.data?.error || error.message);
     },
   });
 
@@ -247,6 +268,40 @@ export function JobDetails() {
             </span>
           </div>
         </div>
+
+        {/* Client Actions */}
+        {user?.role === "CLIENT" && user.id === job.clientId && job.status !== "COMPLETED" && job.status !== "CANCELLED" && (
+          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border/50">
+            {job.status === "IN_PROGRESS" && (
+              <Button
+                variant="outline"
+                className="gap-2 border-green-500/50 text-green-600 hover:bg-green-50 hover:border-green-500"
+                onClick={() => completeMutation.mutate(job.id)}
+                disabled={completeMutation.isPending}
+              >
+                {completeMutation.isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="size-4" />
+                )}
+                Marcar como completado
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              className="gap-2 text-muted-foreground hover:text-destructive"
+              onClick={() => cancelMutation.mutate(job.id)}
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <XCircle className="size-4" />
+              )}
+              Cancelar proyecto
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Skills Section */}
@@ -329,6 +384,7 @@ export function JobDetails() {
 
       {/* Apply Button & Modal */}
       {user?.role === "PROFESSIONAL" &&
+        job.status === "OPEN" &&
         (alreadyApplied ? (
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-primary">
