@@ -49,3 +49,13 @@ export const getClientRecentActivityService = async (): Promise<
   );
   return res.data;
 };
+
+export const completeJobService = async (jobId: string): Promise<Job> => {
+  const res = await axiosInstance.patch<Job>(`/jobs/${jobId}/complete`);
+  return res.data;
+};
+
+export const cancelJobService = async (jobId: string): Promise<Job> => {
+  const res = await axiosInstance.patch<Job>(`/jobs/${jobId}/cancel`);
+  return res.data;
+};
