@@ -2,43 +2,60 @@
 
 ## Commands
 
-### Frontend
+### Frontend (`client/`)
 ```bash
-cd client && npm run dev    # Dev server :5173
-npm run build            # Production build
-npm run lint             # ESLint
+npm run dev         # Dev server :5173
+npm run build       # tsc -b && vite build (type-check + bundle)
+npm run lint        # ESLint
 ```
 
-### Backend
+### Backend (`server/`)
 ```bash
-cd server && npm run dev  # Dev server :3000
-npx prisma migrate dev  # Create/run migrations
-npx prisma generate    # Generate Prisma client
+npm run dev         # Dev server :3000 (tsx watch)
+npm run build       # prisma generate + tsc
+npm run seed        # Seed database
+npx prisma migrate dev   # Create/run migrations
+npx prisma generate      # Regenerate client after schema changes (required before build)
+npx prisma studio        # Visual DB browser
 ```
 
-## Setup
+**Run order:** Start backend (`server/`) first, then frontend (`client/`).
 
-**server/.env:**
-```
-DATABASE_URL="postgresql://..."
-CLERK_SECRET_KEY="sk_test_..."
-CLERK_WEBHOOK_SECRET="whsec_..."
-```
+**Always run `npx prisma generate` after editing `schema.prisma` before building or running the server.**
 
-**client/.env:**
-```
-VITE_BACKEND_URL="http://localhost:3000/api"
-VITE_CLERK_PUBLISHABLE_KEY="pk_test_..."
-```
+## Auth (Clerk + dual-ID)
 
-## Architecture
+Two user IDs: `clerkUserId` (Clerk's) used only during onboarding; `userId` (internal DB `cuid`) used for all Prisma relations. `authMiddleware` resolves both onto `req.auth`. On first login, `userId` is `null` until user completes onboarding at `/select-role`.
 
-- **Backend**: Modular under `server/src/modules/` (user, job, application, professionalProfile, clientProfile, profile)
-- **Client**: Role-based layouts (ClientLayout, ProfessionalLayout) with routes under `/client/*` and `/professional/*`
-- **API**: Routes at `/api` prefix; Prisma client auto-generated to `server/src/generated/prisma`
-- **Database**: Prisma with PostgreSQL (Neon); run `npx prisma generate` after schema changes before building
+Clerk webhooks at `/api/webhooks/clerk` — must be registered **before** `express.json()` (needs raw body for Svix signature verification).
 
-## Run Order
+## Backend (`server/src/modules/`)
 
-1. Start backend first: `cd server && npm run dev`
-2. Then frontend: `cd client && npm run dev`
+Each domain: `<entity>.route.ts`, `.controller.ts`, `.service.ts`, `.schema.ts`. Middleware chain: `authMiddleware → roleMiddleware("ROLE") → validateData(schema) → controller`.
+
+Registered routes (all under `/api`): `users`, `jobs`, `profiles`, `professional-profiles`, `client-profiles`, `applications`, `invitations`.
+
+## Frontend (`client/src/`)
+
+- **`store/Auth.tsx`** — `AuthProvider` + `useAppAuth()`. Wraps Clerk hooks, fetches internal user from `/api/users/me`. Exposes `{ user, loading, needsOnboarding, isAuthenticated, refreshUser }`. Registers Clerk's `getToken` into Axios.
+- **`lib/axios.ts`** — Single Axios instance at `VITE_BACKEND_URL`. Token injected via interceptor.
+- **`routes/index.tsx`** — Three layout groups: public (`RootLayout`), `/professional/*` (`ProfessionalLayout`), `/client/*` (`ClientLayout`).
+- **`services/`** — One file per domain, plain async functions over `axiosInstance`.
+- **`components/ui/`** — Shadcn/Radix UI primitives.
+- Role-based dashboards under `pages/client/` and `pages/professional/`.
+
+## Deployment
+
+- **Frontend**: Netlify (`client/`)
+- **Backend**: Vercel Serverless — `vercel-build` runs `prisma generate` only (no `tsc`)
+- **DB**: Neon (serverless PostgreSQL)
+
+## Roadmap
+
+See `implementation_plan.md` (Phases 1–4): job status tracking, invitations, notifications, chat, reviews, bookmarks.
+
+## Env Files
+
+**`server/.env`**: `DATABASE_URL`, `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET`
+
+**`client/.env`**: `VITE_BACKEND_URL`, `VITE_CLERK_PUBLISHABLE_KEY`

@@ -13,6 +13,45 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  CLIENT
+  PROFESSIONAL
+}
+
+enum WorkModel {
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
+enum ExperienceLevel {
+  JUNIOR
+  MID_LEVEL
+  SENIOR
+  EXPERT
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  FREELANCE
+  CONTRACT
+}
+
+enum JobStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
 model User {
   id          String   @id @default(cuid())
   clerkUserId String   @unique
@@ -27,11 +66,8 @@ model User {
   clientProfile       ClientProfile?
   jobs                Job[]                @relation("ClientJobs")
   applications        Application[]        @relation("ProfessionalApplications")
-}
-
-enum UserRole {
-  CLIENT
-  PROFESSIONAL
+  sentInvitations     Invitation[]         @relation("ClientInvitations")
+  receivedInvitations Invitation[]         @relation("ProfessionalInvitations")
 }
 
 model ProfessionalProfile {
@@ -73,33 +109,6 @@ model ClientProfile {
   updatedAt DateTime @updatedAt
 }
 
-enum WorkModel {
-  REMOTE
-  HYBRID
-  ONSITE
-}
-
-enum ExperienceLevel {
-  JUNIOR
-  MID_LEVEL
-  SENIOR
-  EXPERT
-}
-
-enum JobType {
-  FULL_TIME
-  PART_TIME
-  FREELANCE
-  CONTRACT
-}
-
-enum JobStatus {
-  OPEN
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
 model Job {
   id          String    @id @default(cuid())
   title       String
@@ -119,6 +128,7 @@ model Job {
 
   client       User          @relation("ClientJobs", fields: [clientId], references: [id])
   applications Application[]
+  invitations  Invitation[]
 }
 
 enum ApplicationStatus {
@@ -142,4 +152,21 @@ model Application {
   job          Job  @relation(fields: [jobId], references: [id])
 
   @@unique([professionalId, jobId])
+}
+
+model Invitation {
+  id             String           @id @default(cuid())
+  clientId       String
+  professionalId String
+  jobId          String
+  message        String?
+  status         InvitationStatus @default(PENDING)
+  createdAt      DateTime         @default(now())
+
+  client       User @relation("ClientInvitations", fields: [clientId], references: [id])
+  professional User @relation("ProfessionalInvitations", fields: [professionalId], references: [id])
+  job          Job  @relation(fields: [jobId], references: [id])
+
+  // Evita invitaciones duplicadas
+  @@unique([clientId, professionalId, jobId])
 }
