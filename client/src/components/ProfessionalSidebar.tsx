@@ -7,6 +7,7 @@ import {
   Settings,
   Briefcase,
   LogOut,
+  MailQuestion,
 } from "lucide-react";
 import { useClerk } from "@clerk/clerk-react";
 
@@ -20,6 +21,11 @@ const navItems = [
     to: "/professional/jobs",
     icon: FolderOpen,
     label: "Buscar Trabajos",
+  },
+  {
+    to: "/professional/invitations",
+    icon: MailQuestion,
+    label: "Invitaciones",
   },
   {
     to: "/professional/proposals",
