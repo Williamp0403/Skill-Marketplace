@@ -65,7 +65,7 @@ export function CompanyProfile() {
   const displayName = cp?.companyName || profile.name;
 
   return (
-    <div className="p-8 space-y-8 animate-in fade-in duration-500">
+    <div className="p-8 space-y-8 animate-in fade-in duration-500 max-w-full">
       {/* Header Profile */}
       <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
@@ -134,11 +134,11 @@ export function CompanyProfile() {
 
       {/* About Section */}
       {cp?.about && (
-        <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
+        <div className="bg-card border border-border rounded-xl p-8 shadow-sm overflow-hidden">
           <h2 className="text-lg font-semibold text-foreground mb-4">
             Acerca de la empresa
           </h2>
-          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+          <p className="text-muted-foreground leading-relaxed whitespace-pre-line break-words max-w-full">
             {cp.about}
           </p>
         </div>

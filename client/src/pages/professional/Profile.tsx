@@ -137,7 +137,7 @@ export function ProfessionalProfile() {
 
   return (
     <div className="p-8 space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between border-b pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Mi Perfil</h1>
           <p className="text-muted-foreground mt-1">
@@ -146,12 +146,12 @@ export function ProfessionalProfile() {
           </p>
         </div>
         {!isEditing ? (
-          <Button className="gap-2" onClick={handleEditClick}>
+          <Button className="gap-2 self-start sm:self-auto" onClick={handleEditClick}>
             <Edit3 className="size-4" />
             Editar Perfil
           </Button>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-2 self-start sm:self-auto">
             <Button
               variant="outline"
               type="button"
