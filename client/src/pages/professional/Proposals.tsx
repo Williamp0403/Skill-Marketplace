@@ -178,12 +178,28 @@ export function ProfessionalProposals() {
 
                 {/* Message Snippet */}
                 <div className="mt-6">
-                  <p className="text-sm font-medium mb-2 text-foreground">
-                    Tu mensaje de presentación:
-                  </p>
-                  <div className="bg-background rounded-lg p-4 text-muted-foreground text-sm italic border-l-4 border-l-primary/30">
-                    "{app.message}"
-                  </div>
+                  {app.message === "SYSTEM_DIRECT_HIRE" ? (
+                    <div className="bg-primary/5 border border-primary/20 text-primary-foreground dark:text-primary p-4 rounded-xl flex items-start gap-3">
+                      <div className="bg-primary/10 text-primary p-2 rounded-full mt-0.5">
+                        <CheckCircle2 className="size-5 shrink-0" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm text-foreground">Contratación Directa</p>
+                        <p className="text-sm text-muted-foreground mt-0.5">
+                          Fuiste contratado directamente para este proyecto mediante una invitación.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium mb-2 text-foreground">
+                        Tu mensaje de presentación:
+                      </p>
+                      <div className="bg-background rounded-lg p-4 text-muted-foreground text-sm italic border-l-4 border-l-primary/30">
+                        "{app.message}"
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             );

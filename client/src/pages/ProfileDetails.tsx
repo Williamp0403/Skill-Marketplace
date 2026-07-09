@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getProfileById } from "@/services/profiles";
 import { formatDate } from "@/lib/date";
+import { useAppAuth } from "@/store/Auth";
+import { InviteProfessionalModal } from "@/components/client/InviteProfessionalModal";
 import {
   ArrowLeft,
   UserRound,
@@ -15,12 +18,15 @@ import {
   GraduationCap,
   ExternalLink,
   Clock,
+  Send,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export function ProfileDetails() {
   const { id } = useParams();
   const location = useLocation();
+  const { user } = useAppAuth();
 
   const searchParams = new URLSearchParams(location.search);
   const fromProposals = searchParams.get("from") === "proposals";
@@ -32,6 +38,10 @@ export function ProfileDetails() {
         ? "/client/proposals"
         : "/client/profiles"
       : "/profiles";
+
+  const [showInviteModal, setShowInviteModal] = useState(false);
+
+  const isClientViewing = user?.role === "CLIENT" && user?.id !== id;
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["profile", id],
@@ -138,6 +148,16 @@ export function ProfileDetails() {
                 Miembro desde {formatDate(data.createdAt)}
               </div>
             </div>
+
+            {/* Invite Button - solo visible para clientes */}
+            {isClientViewing && (
+              <div className="flex justify-center sm:justify-start mt-6">
+                <Button onClick={() => setShowInviteModal(true)}>
+                  <Send className="size-4" />
+                  Invitar a proyecto
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -231,6 +251,13 @@ export function ProfileDetails() {
           )}
         </div>
       </div>
+      {/* Invite Modal */}
+      <InviteProfessionalModal
+        professionalId={data.id}
+        professionalName={data.name}
+        open={showInviteModal}
+        onOpenChange={setShowInviteModal}
+      />
     </div>
   );
 }

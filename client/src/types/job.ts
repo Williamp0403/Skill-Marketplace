@@ -1,3 +1,5 @@
+export type JobStatus = "OPEN" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
 export interface JobClient {
   id: string;
   name: string;
@@ -20,6 +22,7 @@ export interface Job {
   title: string;
   description: string;
   budget: number;
+  status: JobStatus;
   workModel?: "REMOTE" | "HYBRID" | "ONSITE";
   experienceLevel?: "JUNIOR" | "MID_LEVEL" | "SENIOR" | "EXPERT";
   jobType?: "FULL_TIME" | "PART_TIME" | "FREELANCE" | "CONTRACT";

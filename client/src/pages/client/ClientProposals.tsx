@@ -309,17 +309,33 @@ export function ClientProposals() {
                             variant="outline"
                             className="flex-1 lg:flex-none"
                           >
-                            Ver mensaje de la propuesta
+                            {app.message === "SYSTEM_DIRECT_HIRE"
+                              ? "Ver detalles de contratación"
+                              : "Ver mensaje de la propuesta"}
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-xl">
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
-                              Propuesta de {app.professional.name}
+                              {app.message === "SYSTEM_DIRECT_HIRE"
+                                ? "Detalles de Contratación Directa"
+                                : `Propuesta de ${app.professional.name}`}
                             </DialogTitle>
                           </DialogHeader>
-                          <div className="bg-muted/30 border border-border rounded-lg p-4 text-sm whitespace-pre-wrap leading-relaxed">
-                            {app.message}
+                          <div className="bg-muted/30 border border-border rounded-lg p-4 text-sm whitespace-pre-wrap leading-relaxed text-muted-foreground">
+                            {app.message === "SYSTEM_DIRECT_HIRE" ? (
+                              <div className="flex items-start gap-2.5 text-foreground">
+                                <CheckCircle2 className="size-5 text-emerald-500 shrink-0 mt-0.5" />
+                                <div>
+                                  <p className="font-semibold text-sm">Contratado Directamente</p>
+                                  <p className="text-sm text-muted-foreground mt-0.5">
+                                    Este profesional fue contratado directamente al aceptar tu invitación para este proyecto. No se requirió carta de presentación manual.
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              app.message
+                            )}
                           </div>
                         </DialogContent>
                       </Dialog>

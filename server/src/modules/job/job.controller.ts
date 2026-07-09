@@ -6,6 +6,8 @@ import {
   getJobsByClient,
   getClientDashboardStats,
   getClientRecentActivity,
+  completeJob,
+  cancelJob,
 } from "./job.service.js";
 import { JobCreateInput } from "./job.schema.js";
 
@@ -97,5 +99,45 @@ export const getClientRecentActivityController = async (
   } catch (error) {
     console.error("Error fetching client recent activity:", error);
     res.status(500).json({ error: "Failed to fetch client recent activity" });
+  }
+};
+
+export const completeJobController = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const clientId = req.auth.userId!;
+
+    if (typeof id !== "string") {
+      return res.status(400).json({ error: "Invalid job ID" });
+    }
+
+    const job = await completeJob(id, clientId);
+    if ("error" in job) {
+      return res.status(job.status).json({ error: job.error });
+    }
+    res.json(job);
+  } catch (error: any) {
+    console.error("Error completing job:", error);
+    res.status(500).json({ error: "Failed to complete job" });
+  }
+};
+
+export const cancelJobController = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const clientId = req.auth.userId!;
+
+    if (typeof id !== "string") {
+      return res.status(400).json({ error: "Invalid job ID" });
+    }
+
+    const job = await cancelJob(id, clientId);
+    if ("error" in job) {
+      return res.status(job.status).json({ error: job.error });
+    }
+    res.json(job);
+  } catch (error: any) {
+    console.error("Error canceling job:", error);
+    res.status(500).json({ error: "Failed to cancel job" });
   }
 };

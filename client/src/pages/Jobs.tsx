@@ -13,6 +13,7 @@ import {
   FilterX,
   GraduationCap,
   Building2,
+  Users,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -26,36 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { JobStatusBadge } from "@/components/JobStatusBadge";
+import { getWorkModelText, getJobTypeText, getExperienceLevelText } from "@/lib/job-formatters";
 
 export function Jobs() {
-  const getWorkModelText = (model?: string) => {
-    switch (model) {
-      case "REMOTE":
-        return "Remoto";
-      case "HYBRID":
-        return "Híbrido";
-      case "ONSITE":
-        return "Presencial";
-      default:
-        return "";
-    }
-  };
-
-  const getJobTypeText = (type?: string) => {
-    switch (type) {
-      case "FULL_TIME":
-        return "Tiempo Completo";
-      case "PART_TIME":
-        return "Medio Tiempo";
-      case "FREELANCE":
-        return "Proyectos / Gigs";
-      case "CONTRACT":
-        return "Contrato Fijo";
-      default:
-        return "";
-    }
-  };
-
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [workModel, setWorkModel] = useState<string>("all");
@@ -221,55 +196,75 @@ export function Jobs() {
             <Link
               to={`${basePath}/${job.id}`}
               key={job.id}
-              className="group bg-card border border-border rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/30 cursor-pointer"
+              className="group bg-card border border-border rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/30 flex flex-col md:flex-row gap-6 md:items-center justify-between"
             >
-              <div className="flex items-start justify-between gap-4">
-                {/* Info */}
-                <div className="flex-1 space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+              <div className="flex-1 min-w-0 space-y-3">
+                <div className="flex items-start justify-between gap-4">
+                  <h2 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors truncate">
                     {job.title}
                   </h2>
-                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
-                    {job.description}
-                  </p>
+                  {/* Budget Mobile */}
+                  <div className="inline-flex shrink-0 items-center justify-center gap-1 bg-primary/10 text-primary font-semibold px-3 py-1.5 rounded-lg text-sm md:hidden">
+                    <DollarSign className="size-4" />
+                    {job.budget.toLocaleString("es-ES")}
+                  </div>
+                </div>
 
-                  {/* Nuevos Badges: Modalidad y Tipo */}
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <Badge variant="secondary" className="gap-1.5 font-normal">
+                <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+                  {job.description}
+                </p>
+
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pt-2">
+                  {/* Badges Principales */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <JobStatusBadge status={job.status} />
+                    <Badge variant="secondary" className="gap-1.5 font-normal text-xs">
                       <Building2 className="size-3" />
                       {job.client.clientProfile?.companyName || job.client.name}
                     </Badge>
                     {job.workModel && (
-                      <Badge
-                        variant="secondary"
-                        className="gap-1.5 font-normal"
-                      >
+                      <Badge variant="secondary" className="gap-1.5 font-normal text-xs">
                         <MonitorSmartphone className="size-3" />
                         {getWorkModelText(job.workModel)}
                       </Badge>
                     )}
                     {job.jobType && (
-                      <Badge
-                        variant="secondary"
-                        className="gap-1.5 font-normal"
-                      >
+                      <Badge variant="secondary" className="gap-1.5 font-normal text-xs">
                         <ClipboardList className="size-3" />
                         {getJobTypeText(job.jobType)}
                       </Badge>
                     )}
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-2">
+                    {job.experienceLevel && (
+                      <Badge variant="secondary" className="gap-1.5 font-normal text-xs">
+                        <GraduationCap className="size-3" />
+                        {getExperienceLevelText(job.experienceLevel)}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Metadatos */}
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground shrink-0 border-t xl:border-none pt-3 xl:pt-0">
+                    <div className="flex items-center gap-1.5" title="Propuestas enviadas">
+                      <Users className="size-3.5" />
+                      <span className="font-medium text-foreground">{job._count?.applications || 0}</span>
+                      <span className="hidden sm:inline">propuestas</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
                       <Clock className="size-3.5" />
-                      <span>Publicado el {formatDate(job.createdAt)}</span>
+                      <span>{formatDate(job.createdAt)}</span>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Budget */}
-                <div className="shrink-0 flex flex-col items-end gap-2">
-                  <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary font-semibold px-3 py-1.5 rounded-lg text-sm">
-                    <DollarSign className="size-4" />
-                    {job.budget.toLocaleString("es-ES")}
-                  </div>
+              {/* Budget Desktop */}
+              <div className="hidden md:flex flex-col items-end shrink-0 pl-6 border-l border-border/50">
+                <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-1">
+                  Presupuesto
+                </span>
+                <div className="inline-flex items-center gap-1 text-primary font-bold text-xl">
+                  <DollarSign className="size-5" />
+                  {job.budget.toLocaleString("es-ES")}
                 </div>
               </div>
             </Link>

@@ -6,6 +6,8 @@ import {
   getClientJobs,
   getClientDashboardStatsController,
   getClientRecentActivityController,
+  completeJobController,
+  cancelJobController,
 } from "./job.controller.js";
 import { authMiddleware } from "../../middleware/authMiddleware.js";
 import { roleMiddleware } from "../../middleware/roleMiddleware.js";
@@ -37,6 +39,20 @@ router.post(
   roleMiddleware("CLIENT"),
   validateData(jobCreateSchema),
   createJobPost,
+);
+
+router.patch(
+  "/:id/complete",
+  authMiddleware,
+  roleMiddleware("CLIENT"),
+  completeJobController,
+);
+
+router.patch(
+  "/:id/cancel",
+  authMiddleware,
+  roleMiddleware("CLIENT"),
+  cancelJobController,
 );
 
 export default router;

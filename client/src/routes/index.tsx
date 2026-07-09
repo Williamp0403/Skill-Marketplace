@@ -14,6 +14,7 @@ import { ProfileDetails } from "@/pages/ProfileDetails";
 import { ProfessionalDashboard } from "@/pages/professional/Dashboard";
 import { ProfessionalProfile } from "@/pages/professional/Profile";
 import { ProfessionalProposals } from "@/pages/professional/Proposals";
+import { ProfessionalInvitations } from "@/pages/professional/Invitations";
 import { ProfessionalSettings } from "@/pages/professional/Settings";
 import { ClientLayout } from "@/layouts/ClientLayout";
 import { ClientDashboard } from "@/pages/client/Dashboard";
@@ -48,6 +49,7 @@ export function IndexRoute() {
           <Route path="dashboard" element={<ProfessionalDashboard />} />
           <Route path="profile" element={<ProfessionalProfile />} />
           <Route path="proposals" element={<ProfessionalProposals />} />
+          <Route path="invitations" element={<ProfessionalInvitations />} />
           <Route path="jobs" element={<Jobs />} />
           <Route path="jobs/:id" element={<JobDetails />} />
           <Route path="profiles" element={<Profiles />} />

@@ -5,6 +5,7 @@ import profileRoutes from "../modules/profile/profile.route.js";
 import professionalProfileRoutes from "../modules/professionalProfile/professionalProfile.route.js";
 import clientProfileRoutes from "../modules/clientProfile/clientProfile.route.js";
 import applicationRoutes from "../modules/application/application.routes.js";
+import invitationRoutes from "../modules/invitation/invitation.route.js";
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use("/profiles", profileRoutes);
 router.use("/professional-profiles", professionalProfileRoutes);
 router.use("/client-profiles", clientProfileRoutes);
 router.use("/applications", applicationRoutes);
+router.use("/invitations", invitationRoutes);
 
 export default router;
