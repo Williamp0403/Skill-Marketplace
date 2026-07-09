@@ -12,50 +12,56 @@ npm run lint        # ESLint
 ### Backend (`server/`)
 ```bash
 npm run dev         # Dev server :3000 (tsx watch)
-npm run build       # prisma generate + tsc
+npm run build       # npx prisma generate && tsc
 npm run seed        # Seed database
-npx prisma migrate dev   # Create/run migrations
-npx prisma generate      # Regenerate client after schema changes (required before build)
+npx prisma migrate dev   # Create/run migrations (only if schema changed)
+npx prisma generate      # Regenerate client after schema.prisma edits (required before dev/build)
 npx prisma studio        # Visual DB browser
 ```
 
-**Run order:** Start backend (`server/`) first, then frontend (`client/`).
+**Run order:** Start `server/` first, then `client/`.
 
-**Always run `npx prisma generate` after editing `schema.prisma` before building or running the server.**
+**Always `npx prisma generate` after editing `schema.prisma`.** Prisma client is output to `server/src/generated/prisma/` (custom path, gitignored). Without it, `server/` won't start.
 
-## Auth (Clerk + dual-ID)
+## Auth: Clerk dual-ID system
 
-Two user IDs: `clerkUserId` (Clerk's) used only during onboarding; `userId` (internal DB `cuid`) used for all Prisma relations. `authMiddleware` resolves both onto `req.auth`. On first login, `userId` is `null` until user completes onboarding at `/select-role`.
+Two user IDs:
+- **`clerkUserId`** — Clerk's ID, used only during onboarding to create the internal user
+- **`userId`** (internal DB `cuid`) — used for all Prisma relations
 
-Clerk webhooks at `/api/webhooks/clerk` — must be registered **before** `express.json()` (needs raw body for Svix signature verification).
+`authMiddleware` resolves both onto `req.auth`. On first login `userId` is `null` until user completes onboarding at `/select-role`.
 
-## Backend (`server/src/modules/`)
+**Critical:** Clerk webhook at `/api/webhooks/clerk` uses `raw({ type: "application/json" })` and must be registered **before** `express.json()` in `server/src/index.ts` (already correct — don't reorder).
 
-Each domain: `<entity>.route.ts`, `.controller.ts`, `.service.ts`, `.schema.ts`. Middleware chain: `authMiddleware → roleMiddleware("ROLE") → validateData(schema) → controller`.
+## Backend architecture
 
-Registered routes (all under `/api`): `users`, `jobs`, `profiles`, `professional-profiles`, `client-profiles`, `applications`, `invitations`.
+`server/src/modules/<entity>/` — each domain: `.route.ts`, `.controller.ts`, `.service.ts`, `.schema.ts`. Middleware chain:
+```
+authMiddleware → roleMiddleware("ROLE") → validateData(schema) → controller
+```
 
-## Frontend (`client/src/`)
+All routes under `/api`. Prisma client instantiated once in `server/src/lib/prisma.ts` with `@prisma/adapter-pg` + connection pooling.
 
-- **`store/Auth.tsx`** — `AuthProvider` + `useAppAuth()`. Wraps Clerk hooks, fetches internal user from `/api/users/me`. Exposes `{ user, loading, needsOnboarding, isAuthenticated, refreshUser }`. Registers Clerk's `getToken` into Axios.
-- **`lib/axios.ts`** — Single Axios instance at `VITE_BACKEND_URL`. Token injected via interceptor.
-- **`routes/index.tsx`** — Three layout groups: public (`RootLayout`), `/professional/*` (`ProfessionalLayout`), `/client/*` (`ClientLayout`).
-- **`services/`** — One file per domain, plain async functions over `axiosInstance`.
+Route prefixes: `users`, `jobs`, `profiles`, `professional-profiles`, `client-profiles`, `applications`, `invitations`.
+
+## Frontend architecture
+
+- **`store/Auth.tsx`** — `AuthProvider` + `useAppAuth()`. Wraps Clerk hooks, fetches internal user from `/api/users/me`. Exposes `{ user, loading, needsOnboarding, isAuthenticated, refreshUser }`. Registers Clerk's `getToken` into Axios interceptor.
+- **`lib/axios.ts`** — Single Axios instance at `VITE_BACKEND_URL`. Token auto-injected.
+- **`routes/index.tsx`** — Three layout groups: public (`RootLayout`), `/professional/*` (`ProfessionalLayout`), `/client/*` (`ClientLayout`). `/select-role` gated by `ProtectedRole`.
+- **`services/`** — One file per domain, plain async functions over `axiosInstance`, consumed via TanStack Query.
 - **`components/ui/`** — Shadcn/Radix UI primitives.
-- Role-based dashboards under `pages/client/` and `pages/professional/`.
+- Path alias `@/` maps to `client/src/`.
+
+## Env files
+
+| File | Variables | Gitignored? |
+|------|-----------|-------------|
+| `server/.env` | `DATABASE_URL`, `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET` | ✅ Yes |
+| `client/.env` | `VITE_BACKEND_URL`, `VITE_CLERK_PUBLISHABLE_KEY` | ✅ Yes (was previously tracked — check `git rm --cached` if it reappears) |
 
 ## Deployment
 
-- **Frontend**: Netlify (`client/`)
-- **Backend**: Vercel Serverless — `vercel-build` runs `prisma generate` only (no `tsc`)
-- **DB**: Neon (serverless PostgreSQL)
-
-## Roadmap
-
-See `implementation_plan.md` (Phases 1–4): job status tracking, invitations, notifications, chat, reviews, bookmarks.
-
-## Env Files
-
-**`server/.env`**: `DATABASE_URL`, `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET`
-
-**`client/.env`**: `VITE_BACKEND_URL`, `VITE_CLERK_PUBLISHABLE_KEY`
+- **Frontend:** Netlify (`client/`)
+- **Backend:** Vercel Serverless — `vercel-build` runs `prisma generate` only (no `tsc`)
+- **DB:** Neon (serverless PostgreSQL)

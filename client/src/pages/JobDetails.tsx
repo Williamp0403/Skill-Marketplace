@@ -338,21 +338,21 @@ export function JobDetails() {
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
           Publicado por
         </h2>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
           <div className="flex items-center gap-4">
             {job.client.avatarUrl ? (
               <img
                 src={job.client.avatarUrl}
                 alt="Avatar"
-                className="size-12 rounded-full object-cover border border-border"
+                className="size-12 rounded-full object-cover border border-border shrink-0"
               />
             ) : (
               <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <User className="size-6 text-primary" />
               </div>
             )}
-            <div>
-              <p className="font-semibold text-foreground">
+            <div className="min-w-0">
+              <p className="font-semibold text-foreground truncate">
                 {job.client.clientProfile?.companyName || job.client.name}
               </p>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
@@ -373,6 +373,7 @@ export function JobDetails() {
 
           <Link
             to={`${backPath.replace("/jobs", "")}/companies/${job.client.id}`}
+            className="self-start sm:self-auto shrink-0"
           >
             <Button variant="outline" size="sm" className="gap-1.5">
               <Briefcase className="size-4" />
